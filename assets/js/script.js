@@ -1,9 +1,7 @@
 
 var taskIdCounter = 0;
-
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
-
 var pageContentEl = document.querySelector("#page-content");
 
 var taskFormHandler = function(event) {
@@ -32,10 +30,8 @@ var createTaskEl = function(taskDataObj) {
     // creat list item
     var listItemEl = document.createElement("li");
     listItemEl.className = "task-item";
-
     // add task id as a custom attribute
     listItemEl.setAttribute("data-task-id", taskIdCounter);
-
     // create div to hold task info and add to list item
     var taskInfoEl = document.createElement("div");
     taskInfoEl.className = "task-info";
@@ -62,50 +58,76 @@ var createTaskActions = function(taskId) {
     editButtonEl.textContent = "Edit";
     editButtonEl.className = "btn edit-btn";
     editButtonEl.setAttribute("data-task-id", taskId);
-
     actionContainerEl.appendChild(editButtonEl);
 
-    // create edit button
+    // create delete button
     var deleteButtonEl = document.createElement("button");
     deleteButtonEl.textContent = "Delete";
     deleteButtonEl.className = "btn delete-btn";
     deleteButtonEl.setAttribute("data-task-id", taskId);
-    
     actionContainerEl.appendChild(deleteButtonEl);
 
+    // create change status dropdown
     var statusSelectEl = document.createElement("select");
-    statusSelectEl.className = "select-status";
     statusSelectEl.setAttribute("name", "status-change");
     statusSelectEl.setAttribute("data-task-id", taskId);
-
+    statusSelectEl.className = "select-status";
+    actionContainerEl.appendChild(statusSelectEl);
+    // create status options
     var statusChoices =["To Do", "In Progress", "Completed"];
+    
     for (var i = 0; i < statusChoices.length; i++) {
         //create option element
         var statusOptionEl = document.createElement("option");
-        statusOptionEl.testContent = statusChoices[i];
         statusOptionEl.setAttribute("value", statusChoices[i]);
-
+        statusOptionEl.testContent = statusChoices[i];
+        
         // append to select
         statusSelectEl.appendChild(statusOptionEl);
-    };
-
-    actionContainerEl.appendChild(statusSelectEl);
+    }
 
     return actionContainerEl;
 };
 
 var taskButtonHandler = function(event) {
-    console.log(event.target);
-  
-    if (event.target.matches(".delete-btn")) {
+    // get targt element from event
+    var targetEl = event.target;
+
+    // edit button was clicked
+    if (targetEl.matches(".edit-btn")) {
+        var taskId = targetEl.getAttribute("data-task-id");
+        editTask(taskId);
+    }
+
+    // delete button was clicked
+    else if (event.target.matches(".delete-btn")) {
         // get the element's task id
         var taskId = event.target.getAttribute("data-task-id");
         deleteTask(taskId);
     }      
 };
 
+var editTask = function(taskId) {
+    console.log("editing task #" + taskId);
+  
+    // get task list item element
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    // get content from task name and type
+    var taskName = taskSelected.querySelector("h3.task-name").textContent;
+    var taskType = taskSelected.querySelector("span.task-type").textContent;
+    
+    // write values of taskname and taskType to form to be edited
+    document.querySelector("input[name='task-name']").value = taskName;
+    document.querySelector("select[name='task-type']").value = taskType;
+    // set data attribute to the form with a value of the task's id so it knows which one is being edited
+    formEl.setAttribute("data-task-id", taskId);
+    // update form's button to reflect editing a task rather than creating a new one
+    document.querySelector("#save-task").textContent = "Save Task";
+
+};
+
 var deleteTask = function(taskId) {
-    console.log(taskId);
+    console.log("deleted task #" + taskId);
     // find task list element with taskId value and remove it
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.remove();
